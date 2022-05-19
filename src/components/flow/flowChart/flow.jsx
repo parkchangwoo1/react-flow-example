@@ -1,15 +1,22 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import ReactFlow, { addEdge, useNodesState, useEdgesState } from 'react-flow-renderer';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import ReactFlow, { addEdge } from 'react-flow-renderer';
 import useStore from 'src/stores/rootStore';
-import SelectorNode from './selectorNode';
+import { debounce } from 'lodash';
+import { FirstStep, SendMessage } from './selectorNode';
 import { CustomLine } from './customLine';
+import { CustomEdge } from './customEdge';
+import { useObserver } from 'mobx-react';
 import { FirstNodeData, DefaultNodeData } from './nodeComponent';
-import styled from 'styled-components';
 import SideSlide from './sideSilde/sideSlide';
 
 const nodeTypes = {
-	nodeDefault: SelectorNode,
+	startingStep: FirstStep,
+	sendMessage: SendMessage,
 };
+const edgeTypes = {
+	customEdge: CustomEdge,
+};
+
 const nodeDefaultStyle = {
 	background: 'white',
 	border: 'none',
@@ -21,85 +28,128 @@ const nodeDefaultStyle = {
 const initialNodes = [
 	{
 		id: '1',
-		type: 'nodeDefault',
+		title: 'Starting Step',
+		type: 'startingStep',
 		sourcePosition: 'right',
 		style: nodeDefaultStyle,
 		data: {
 			label: FirstNodeData(),
+			title: 'Starting Step',
 		},
-		arrowHeadType: 'arrow',
 		position: { x: 150, y: 250 },
 	},
 ];
-const initialEdges = [];
 
 /************************************** JSX ****************************************/
 
 const Flow = () => {
-	const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-	const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-	const onConnect = (params) => setEdges((eds) => addEdge(params, eds));
-	const { startNode } = useStore();
-
+	const [nodes, setNodes] = useState(initialNodes);
+	const onConnect = (params) => setNodes((eds) => addEdge(params, eds));
 	const [reactFlowInstance, setReactFlowInstance] = useState(null);
+	const { startNode, nodeState, selectNode } = useStore();
+
 	const onConnectStart = (event, { nodeId }) => {
 		startNode.set(nodeId);
 	};
-	const onConnectStop = (event) => {
+
+	const contextMenuCreate = (x, y) => {
+		let addBox = document.createElement('div');
+		addBox.className = 'column center';
+		addBox.id = 'addMenu';
+		addBox.innerHTML = `
+			<li id='messenger'><strong>+ Messenger</strong></li>
+			<li><strong>+ Action</strong></li>
+			<li><strong>+ Condition</strong></li>
+			<li><strong>+ Randomizer</strong></li>
+			<li><strong>+ Smart Delay</strong></li>
+			<li>Cancel</li>
+		`;
+		document.body.appendChild(addBox);
+		document.getElementById('messenger').addEventListener('click', function () {
+			document.body.removeChild(addBox);
+			createNode(x, y);
+		});
+		document.getElementById('addMenu').style.top = `${y}px`;
+		document.getElementById('addMenu').style.left = `${x}px`;
+	};
+
+	const createNode = (clientX, clientY) => {
 		const newId = Math.random();
 		const newNode = {
 			id: String(newId),
-			type: 'nodeDefault',
+			type: 'sendMessage',
 			position: reactFlowInstance.project({
-				x: event.clientX - 80,
-				y: event.clientY - 95,
+				x: clientX - 80,
+				y: clientY - 95,
 			}),
 			style: nodeDefaultStyle,
 			data: {
 				label: DefaultNodeData(),
+				title: 'Send Message',
 			},
 		};
-		const newElements = {
+		const newEdge = {
 			id: `${startNode.id},${newId}`,
 			source: String(startNode.id),
 			target: String(newId),
-			markerEnd: { type: 'arrow', color: '#8393a5' },
-			animated: false,
+			type: 'customEdge',
 		};
-		addNode(newNode, newElements);
+		addNode(newNode, newEdge);
 	};
+	const onConnectStop = (event) => {
+		console.log(event);
+		contextMenuCreate(event.clientX, event.clientY);
+	};
+
+	const onElementsRemove = (el) => {};
+
 	const addNode = useCallback(
-		(nodes, edges) => {
+		(node, edge) => {
 			setNodes((els) => {
-				return [...els, nodes];
-			});
-			setEdges((els) => {
-				console.log(edges);
-				return [...els, edges];
+				return [...els, node, edge];
 			});
 		},
-		[setNodes, setEdges],
+		[setNodes],
 	);
 
-	return (
+	const nodeChange = useMemo(
+		() =>
+			debounce((val) => {
+				nodeState.set(nodes);
+			}, 200),
+		[],
+	);
+
+	useEffect(() => {
+		nodeChange();
+	}, [nodes, nodeChange]);
+
+	return useObserver(() => (
 		<>
-			<SideSlide />
+			<SideSlide selectNode={selectNode} />
 			<ReactFlow
-				nodes={nodes}
-				edges={edges}
+				id="flowChart"
+				elements={nodes}
 				nodeTypes={nodeTypes}
-				onNodesChange={onNodesChange}
-				onEdgesChange={onEdgesChange}
+				edgeTypes={edgeTypes}
 				onConnect={onConnect}
-				onInit={setReactFlowInstance}
+				onLoad={setReactFlowInstance}
 				onConnectStart={onConnectStart}
 				onConnectStop={onConnectStop}
+				onElementsRemove={onElementsRemove}
+				elementsSelectable={true}
+				onElementClick={(e, node) => {
+					console.log(e.target);
+					if (!node.source) selectNode.select(node);
+					else selectNode.reset();
+				}}
+				onPaneClick={(e) => selectNode.reset()}
 				style={{ background: '#f1f5f8' }}
 				connectionLineComponent={CustomLine}
 				defaultZoom={1.5}
 			></ReactFlow>
 		</>
-	);
+	));
 };
 
 export default Flow;

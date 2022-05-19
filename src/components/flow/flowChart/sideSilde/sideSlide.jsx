@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import { observer } from 'mobx-react';
+import React, { useEffect } from 'react';
 import { ReactComponent as OpenBtn } from 'src/assets/flow/openBtn.svg';
+
 import styled from 'styled-components';
 /************************************* jsx *************************************/
 
-const SideSlide = (dataProps) => {
-	const [data, setData] = useState();
-	const [open, setOpen] = useState(false);
-
-	useEffect(() => {
-		if (dataProps) setData(dataProps);
-		console.log(data);
-	}, []);
-
+const SideSlide = observer(({ selectNode }) => {
 	return (
-		<SideSlideLayout open={open}>
-			<ContentLayout open={open}>
-				{data?.id ? (
-					<div></div>
+		<SideSlideLayout open={selectNode.open}>
+			<ContentLayout open={selectNode.open}>
+				{selectNode.node.id ? (
+					<SelectHeader className="f-20 center" type={selectNode.node.type}>
+						{selectNode.node.data.title}
+					</SelectHeader>
 				) : (
 					<Untitled>
 						<p className="gray mb-8">Flow</p>
@@ -24,12 +20,12 @@ const SideSlide = (dataProps) => {
 					</Untitled>
 				)}
 			</ContentLayout>
-			<OpenLayout open={open} className="center" onClick={() => setOpen(!open)}>
+			<OpenLayout open={selectNode.open} className="center" onClick={() => selectNode.sideOpen()}>
 				<OpenBtn width={60} height={60} fill="#e6e7ed" />
 			</OpenLayout>
 		</SideSlideLayout>
 	);
-};
+});
 
 export default SideSlide;
 
@@ -40,9 +36,9 @@ const SideSlideLayout = styled.div`
 	display: flex;
 	position: absolute;
 	width: ${(props) => (props.open ? '460px' : '60px')};
-	z-index: 10;
+	z-index: 30;
 	top: 80px;
-	left: 80px;
+	left: 220px;
 	background: transparent;
 	transition: 0.3s;
 `;
@@ -54,15 +50,20 @@ const ContentLayout = styled.div`
 	background: white;
 `;
 
+const SelectHeader = styled.div`
+	width: 100%;
+	height: 60px;
+	text-align: center;
+	background: ${(props) =>
+		props.type === 'startingStep'
+			? 'rgb(225, 250, 236)'
+			: props.type === 'sendMessage'
+			? 'rgb(225, 229, 234)'
+			: 'white'};
+`;
+
 const Untitled = styled.div`
 	margin: 1.5rem 2rem;
-	// p {
-	// 	margin-bottom: 1rem;
-	// 	color: #757575;
-	// 	strong {
-	// 		color: black;
-	// 	}
-	// }
 `;
 
 const OpenLayout = styled.div`

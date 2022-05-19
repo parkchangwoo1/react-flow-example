@@ -10,7 +10,7 @@ export const CustomLine = ({ sourceX, sourceY, targetX, targetY }) => {
 				} ${targetY} ${targetX},${targetY}`}
 			/>
 			<polygon
-				points={`${targetX - 5},${targetY - 5} ${targetX},${targetY} ${targetX - 5},${targetY + 5}`}
+				points={`${targetX - 6},${targetY - 6} ${targetX + 1},${targetY} ${targetX - 6},${targetY + 6}`}
 				fill="#8393a5"
 			/>
 		</g>

@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
-import { ReactComponent as FirstStep } from 'src/assets/flow/firstStep.svg';
+import { ReactComponent as FirstStepSVG } from 'src/assets/flow/firstStep.svg';
 import { ReactComponent as Waffle } from 'src/assets/flow/waffle.svg';
+import { ReactComponent as Remove } from 'src/assets/flow/remove.svg';
 import { Handle } from 'react-flow-renderer';
 import styled from 'styled-components';
 
@@ -14,24 +15,14 @@ const SourceHandleStyle = {
 	background: 'white',
 };
 
-export default memo(({ id, data, isConnectable }) => {
+export const FirstStep = memo(({ id, data, isConnectable }) => {
 	return (
 		<>
 			<NodeSvgLayout>
-				{id === '1' ? (
-					<div className="flex">
-						<FirstStep width={25} height={25} />
-						<p className="center f-12">Starting Step</p>
-					</div>
-				) : (
-					<div className="flex">
-						<Waffle width={25} height={25} />
-						<div className="column justify-between">
-							<p className="f-10 secondary">Tmax Waffle</p>
-							<p className="f-12 bold">Send Message</p>
-						</div>
-					</div>
-				)}
+				<div className="flex">
+					<FirstStepSVG width={25} height={25} />
+					<p className="center f-12">Starting Step</p>
+				</div>
 			</NodeSvgLayout>
 			<NodeLayout>
 				<Handle
@@ -42,7 +33,53 @@ export default memo(({ id, data, isConnectable }) => {
 					isConnectable={isConnectable}
 				/>
 				<div>{data.label}</div>
-				<HandleText>{id === '1' ? 'The First Step' : 'Next Step'}</HandleText>
+				<HandleText>The First Step</HandleText>
+				<Handle
+					className="sourceNode"
+					type="source"
+					position="right"
+					style={SourceHandleStyle}
+					isConnectable={isConnectable}
+				/>
+			</NodeLayout>
+		</>
+	);
+});
+
+export const SendMessage = memo(({ id, data, isConnectable }) => {
+	return (
+		<>
+			<HoverContextLayout>
+				<HoverContext className="center">
+					<HoverBtn
+						onClick={(event) => {
+							event.preventDefault();
+							console.log(event.target);
+						}}
+					>
+						<Remove width={18} height={18} />
+					</HoverBtn>
+				</HoverContext>
+			</HoverContextLayout>
+			<NodeSvgLayout>
+				<div className="flex">
+					<Waffle width={25} height={25} />
+					<div className="column justify-between">
+						<p className="f-10 secondary">Tmax Waffle</p>
+						<p className="f-12 bold">Send Message</p>
+					</div>
+				</div>
+			</NodeSvgLayout>
+			<NodeLayout>
+				<Handle
+					type="target"
+					position="left"
+					style={targetHandleStyle}
+					onConnect={(params) => console.log('handle onConnect', params)}
+					isConnectable={isConnectable}
+				/>
+				<div>{data.label}</div>
+				<HandleText>Next Step</HandleText>
 				<Handle
 					className="sourceNode"
 					type="source"
@@ -72,4 +109,32 @@ const HandleText = styled.div`
 	right: 10px;
 	color: #8393a5;
 	font-size: 0.3rem;
+`;
+
+const HoverContextLayout = styled.div`
+	position: absolute;
+	width: fit-content;
+	left: 0;
+	right: 0;
+	margin: 0 auto;
+	padding-bottom: 12px;
+	top: -38px;
+`;
+
+const HoverContext = styled.div`
+	background: white;
+	top: -25px;
+	border-radius: 5px;
+`;
+
+const HoverBtn = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 26px;
+	height: 26px;
+	cursor: pointer;
+	&:hover {
+		background: #f1f3f5;
+	}
 `;

@@ -1,7 +1,7 @@
 import React from 'react';
 import Flow from 'src/components/flow/flowChart/flow';
 import Header from 'src/components/layout/header';
-import SideBar from 'src/components/layout/sidebar';
+import NavigationBar from 'src/components/layout/Navigation_bar';
 import styled from 'styled-components';
 
 /************************************* jsx *************************************/
@@ -10,7 +10,7 @@ const Main = () => {
 	return (
 		<Box className="column">
 			<Header />
-			<SideBar />
+			<NavigationBar />
 			<FlowLayout>
 				<Flow />
 			</FlowLayout>
