@@ -30,15 +30,22 @@ const globalStyles = createGlobalStyle`
 	/**********************react-flow*********************/
 	
 	.react-flow__node{
-		fontFamily: Lato,Helvetica Neue,Helvetica,Arial,sans-serif;
+		font-family: Lato,Helvetica Neue,Helvetica,Arial,sans-serif;
 			&:hover{		
 			outline: 1px solid #0184ff !important;
 			cursor:pointer;
 			}
+			&.selected{
+					outline: 1px solid #0184ff !important;
+				}
 			&[data-id="1"]{
 				&:hover{		
 				outline: 1px solid #0ccb6b !important;
-			}
+				}
+				&.selected{
+					outline: 1px solid #0ccb6b !important;
+				}
+			
 		}
 	}
 	.react-flow__edge-path{
@@ -49,6 +56,41 @@ const globalStyles = createGlobalStyle`
 		&:hover{
 			cursor: pointer;
 			transform: translateY(-50%) scale(1.5, 1.5);
+		}
+	}
+
+	#addMenu{
+		z-index:30;
+		line-height: 20px;
+		min-width: 180px;
+		position: absolute;
+		border-radius: 5px;
+		width: fit-content;
+		border: 1px solid rgba(0, 0, 0, 0.08);
+		li {
+			color:#5a677d;
+			font-size: 15px;
+			background:white;
+			width: 100%;
+			cursor: pointer;
+			list-style: none;
+			border-bottom: 1px dashed #e1e5ea;
+			padding: 0.7rem 2rem 0.7rem 1rem;
+			strong{
+				color:#0084ff;
+			}
+			&:first-child{
+				border-top-left-radius: 5px;
+				border-top-right-radius: 5px;
+			}
+			&:last-child{
+				border-bottom-left-radius: 5px;
+				border-bottom-right-radius: 5px;
+				border:none;
+			}
+			&:hover {
+				background: #f1f3f5;
+			}
 		}
 	}
 	/*****************************************************/
