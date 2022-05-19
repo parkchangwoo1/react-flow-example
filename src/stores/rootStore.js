@@ -1,7 +1,7 @@
-import { startNode, nodeState, edgeState } from './flow';
+import { startNode, nodeState, edgeState, selectNode } from './flow';
 
 const useStore = () => {
-	return { startNode, nodeState, edgeState };
+	return { startNode, nodeState, edgeState, selectNode };
 };
 
 export default useStore;

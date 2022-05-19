@@ -14,6 +14,9 @@ const nodeState = observable({
 		console.log(newNode);
 	},
 	del(id) {},
+	set(changeNode) {
+		this.node = [...changeNode];
+	},
 });
 
 const edgeState = observable({
@@ -23,4 +26,22 @@ const edgeState = observable({
 	},
 });
 
-export { startNode, nodeState, edgeState };
+const selectNode = observable({
+	node: {},
+	open: false,
+
+	select(node) {
+		this.node = node;
+		console.log(node);
+		this.open = true;
+	},
+	sideOpen() {
+		this.open = !this.open;
+	},
+	reset() {
+		console.log('reset');
+		this.open = false;
+		this.node = {};
+	},
+});
+export { startNode, nodeState, edgeState, selectNode };
